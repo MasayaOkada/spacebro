@@ -1,44 +1,80 @@
 
-package jp.jaxa.iss.kibo.rpc.sampleapk;
+package jp.jaxa.iss.kibo.rpc.spacebroapk;
+
+//import org.opencv.aruco.Aruco;
+//import org.opencv.aruco.DetectorParameters;
+//import org.opencv.aruco.Dictionary;
 
 import android.graphics.Bitmap;
+import android.util.Log;
+
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.LuminanceSource;
+import com.google.zxing.MultiFormatReader;
+import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.Reader;
+import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.qrcode.QRCodeReader;
 
 import org.opencv.core.Mat;
 import org.opencv.objdetect.QRCodeDetector;
 
-import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
-
 import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
+import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
+
+
+//import java.util.ArrayList;
+//import java.util.List;
+
 
 /**
  * Class meant to handle commands from the Ground Data System and execute them in Astrobee
  */
 
+
 public class YourService extends KiboRpcService {
     @Override
     protected void runPlan1(){
-        api.judgeSendStart();
-        moveToWrapper(10.6, -4.3, 5, 0, 0, -0.7071068, 0.7071068);
-        moveToWrapper(11, -4.3, 5, 0, 0, -0.7071068, 0.7071068);
-        moveToWrapper(11, -5.7, 5, 0, 0, -0.7071068, 0.7071068);
-        moveToWrapper(11.5, -5.7, 4.5, 0, 0, 0, 1); //p1-1
-        Mat snapshot = api.getMatNavCam();
-        String valueX= convert(snapshot);
-        moveToWrapper(11, -6, 5.55, 0, -0.7071068, 0, 0.7071068); //p1-2
-        moveToWrapper(11, -5.5, 4.33, 0, -0.7071068, 0, 0.7071068);//p1-3
-        moveToWrapper(11, -6.7, 4.33, 0, -0.7071068, 0, 0.7071068);
-        moveToWrapper(10.6, -6.7, 4.33, 0, -0.7071068, 0, 0.7071068);
-        moveToWrapper(10.6, -7.3, 4.33, 0, -0.7071068, 0, 0.7071068);
 
-        moveToWrapper(10.30, -7.5, 4.7, 0, 0, 1, 0);//p2-1
-        moveToWrapper(10.30, -8, 4.7, 0, 0, 1, 0);
-        moveToWrapper(11.5, -8, 5, 0, 0, 0, 1);//p2-2
+        api.judgeSendStart();
+
+        moveToWrapper(11.45, -5.7, 4.5, 0, 0, 0, 1); //p1-1
+        readQrcode(0);
+
+        moveToWrapper(11, -6, 5.55, 0, -0.7071068, 0, 0.7071068); //p1-2
+        readQrcode(1);
+
+        moveToWrapper(11, -5.5, 4.33, 0, -0.7071068, 0, 0.7071068);//p1-3
+        readQrcode(2);
+
+        moveToWrapper(10.55, -5.5, 4.9, 0, 0, 1, 0);
+        moveToWrapper(10.55, -6.8, 4.9, 0, 0, 1, 0);
+        moveToWrapper(11.2, -6.8, 4.9, 0, 0, 1, 0);
+        moveToWrapper(11.2, -7.5, 4.9, 0, 0, 1, 0);
+
+        moveToWrapper(10.45, -7.5, 4.7, 0, 0, 1, 0);//p2-1
+        readQrcode(3);
+
         moveToWrapper(11, -7.7, 5.55, 0, -0.7071068, 0, 0.7071068);//p2-3
+        readQrcode(4);
+
+        moveToWrapper(11.45, -8, 5, 0, 0, 0, 1);//p2-2
+        readQrcode(5);
+
+        moveToWrapper(11.45, -8, 4.65, 0, 0, 0, 1);
+        moveToWrapper(11.1, -8, 4.65, 0, 0, 0, 1);
+        moveToWrapper(11.1, -9, 4.65, 0, 0, 0, 1);
+
+//        moveToWrapper(valueXd, valueYd, valueZd, valueqXd, valueqYd, valueqZd, 0); //p3
+
+//        double Xd = valueXd + 0.20*cos(PI/4) - 0.0944;
+//        double Zd = valueZd - 0.20*cos(PI/4) - 0.0385;
+//        moveToWrapper(Xd, valueYd, Zd, valueqXd,valueqYd,valueqZd, 1); //target point for laser*/
 
         api.laserControl(true);
-        moveToWrapper(11.1, -6, 5.55, 0, -0.7071068, 0, 0.7071068);
 
         api.judgeSendFinishSimulation();
     }
@@ -53,7 +89,7 @@ public class YourService extends KiboRpcService {
         // write here your plan 3
     }
 
-    // You can add your method
+    // move to points method
     private void moveToWrapper(double pos_x, double pos_y, double pos_z,
                                double qua_x, double qua_y, double qua_z,
                                double qua_w){
@@ -69,13 +105,62 @@ public class YourService extends KiboRpcService {
         while(!result.hasSucceeded() || loopCounter < LOOP_MAX){
             result = api.moveTo(point, quaternion, true);
             ++loopCounter;
+
         }
+    }
+
+
+    // QR code reading method
+    private void readQrcode(int count) {
+
+        Bitmap bitmap = api.getBitmapNavCam();
+        // Bitmap のサイズを取得して、ピクセルデータを取得する
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int[] pixels = new int[width * height];
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+
+        try {
+            // zxing で扱える BinaryBitmap形式に変換する
+            LuminanceSource source = new RGBLuminanceSource(width, height, pixels);
+            BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
+            // zxing で画像データを読み込み解析する
+            Reader reader = new MultiFormatReader();
+            com.google.zxing.Result decodeResult = reader.decode(binaryBitmap);
+            // 解析結果を取得する
+            String result = decodeResult.getText();
+            Log.d("readQR", result);
+            api.judgeSendDiscoveredQR(count,result);
+
+        } catch (Exception e) {
+            Log.d("readQR", e.getLocalizedMessage());
+        }
+    }
+
+/*
+    // AR marker method
+    private void detectMarker(){
+        Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
+
+        Mat inputImage = api.getMatNavCam();
+        List<Mat> corners = new ArrayList<>();
+        Mat markerIds = new Mat();
+        DetectorParameters parameters = DetectorParameters.create();
+        Aruco.detectMarkers(inputImage, dictionary, corners, markerIds, parameters);
+
+       // double cameraMatrix[][] = new double[3][3];
+        double cameraMatrix[][] = {{344.173397, 0.000000, 630.793795},{0.000000, 344.277922, 487.033834},{0.000000,
+                0.000000, 1.000000}};
+        //double distortionCoefficients[][] = new double[1][5];
+        double distortionCoefficients[][] = {{-0.152963, 0.017530, -0.001107, -0.000210, 0.000000}};
+
+        Mat rotationMatrix = new Mat(), translationVectors = new Mat(); // 受け取る
+        estimatePoseSingleMarkers(corners, 0.05f, cameraMatrix, distortionCoefficients, rotationMatrix, translationVectors);
 
     }
 
-    private static void convert(){
-        QRCodeDetector detectAndDecode = new QRCodeDetector();
-        detectAndDecode.detectAndDecode();
+    private double[][] estimatePoseSingleMarkers(List<Mat> corners, float v, double[][] cameraMatrix, double[][] distortionCoefficients, Mat rotationMatrix, Mat translationVectors) {
+        return cameraMatrix;
     }
-
+*/
 }
