@@ -19,6 +19,9 @@ import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
+import static java.lang.Math.PI;
+import static java.lang.Math.cos;
+
 //import java.util.ArrayList;
 //import java.util.List;
 
@@ -29,6 +32,9 @@ import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
 
 public class YourService extends KiboRpcService {
+
+    double Value;
+
     @Override
     protected void runPlan1(){
 
@@ -36,12 +42,15 @@ public class YourService extends KiboRpcService {
 
         moveToWrapper(11.45, -5.7, 4.5, 0, 0, 0, 1); //p1-1
         readQrcode(0);
+        double valueX = Value;
 
         moveToWrapper(11, -6, 5.55, 0, -0.7071068, 0, 0.7071068); //p1-2
         readQrcode(1);
+        double valueY = Value;
 
         moveToWrapper(11, -5.5, 4.33, 0, -0.7071068, 0, 0.7071068);//p1-3
         readQrcode(2);
+        double valueZ = Value;
 
         moveToWrapper(10.55, -5.5, 4.9, 0, 0, 1, 0);
         moveToWrapper(10.55, -6.8, 4.9, 0, 0, 1, 0);
@@ -50,21 +59,23 @@ public class YourService extends KiboRpcService {
 
         moveToWrapper(10.45, -7.5, 4.7, 0, 0, 1, 0);//p2-1
         readQrcode(3);
+        double valueqX = Value;
 
         moveToWrapper(11, -7.7, 5.55, 0, -0.7071068, 0, 0.7071068);//p2-3
         readQrcode(4);
+        double valueqZ = Value;
 
         moveToWrapper(11.45, -8, 5, 0, 0, 0, 1);//p2-2
         readQrcode(5);
+        double valueqY = Value;
 
         moveToWrapper(11.45, -8, 4.65, 0, 0, 0, 1);
         moveToWrapper(11.1, -8, 4.65, 0, 0, 0, 1);
         moveToWrapper(11.1, -9, 4.65, 0, 0, 0, 1);
 
-//        moveToWrapper(valueXd, valueYd, valueZd, valueqXd, valueqYd, valueqZd, 0); //p3
-//        double Xd = valueXd + 0.20*cos(PI/4) - 0.0944;
-//        double Zd = valueZd - 0.20*cos(PI/4) - 0.0385;
-//        moveToWrapper(Xd, valueYd, Zd, valueqXd,valueqYd,valueqZd, 1); //target point for laser
+        moveToWrapper(valueX, valueY, valueZ, valueqX, valueqY, valueqZ,1); //p3
+        double X = valueX + 0.20*cos(PI/4) - 0.0944;
+        double Z = valueZ - 0.20*cos(PI/4) - 0.0385;
 
         api.laserControl(true);
 
@@ -121,14 +132,12 @@ public class YourService extends KiboRpcService {
             String result = decodeResult.getText();
             Log.d("readQR", result);
             api.judgeSendDiscoveredQR(count,result);
+            this.Value =  Double.parseDouble(result);
 
         } catch (Exception e) {
             Log.d("readQR", e.getLocalizedMessage());
         }
     }
-
-
-
 
 /*
     // AR marker method
