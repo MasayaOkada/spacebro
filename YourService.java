@@ -10,21 +10,14 @@ import android.util.Log;
 
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.LuminanceSource;
-import com.google.zxing.MultiFormatReader;
 import com.google.zxing.RGBLuminanceSource;
-import com.google.zxing.Reader;
 import com.google.zxing.common.HybridBinarizer;
-import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.qrcode.QRCodeReader;
-
-import org.opencv.core.Mat;
-import org.opencv.objdetect.QRCodeDetector;
 
 import gov.nasa.arc.astrobee.Result;
 import gov.nasa.arc.astrobee.types.Point;
 import gov.nasa.arc.astrobee.types.Quaternion;
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
-
 
 //import java.util.ArrayList;
 //import java.util.List;
@@ -69,10 +62,9 @@ public class YourService extends KiboRpcService {
         moveToWrapper(11.1, -9, 4.65, 0, 0, 0, 1);
 
 //        moveToWrapper(valueXd, valueYd, valueZd, valueqXd, valueqYd, valueqZd, 0); //p3
-
 //        double Xd = valueXd + 0.20*cos(PI/4) - 0.0944;
 //        double Zd = valueZd - 0.20*cos(PI/4) - 0.0385;
-//        moveToWrapper(Xd, valueYd, Zd, valueqXd,valueqYd,valueqZd, 1); //target point for laser*/
+//        moveToWrapper(Xd, valueYd, Zd, valueqXd,valueqYd,valueqZd, 1); //target point for laser
 
         api.laserControl(true);
 
@@ -109,10 +101,8 @@ public class YourService extends KiboRpcService {
         }
     }
 
-
     // QR code reading method
     private void readQrcode(int count) {
-
         Bitmap bitmap = api.getBitmapNavCam();
         // Bitmap のサイズを取得して、ピクセルデータを取得する
         int width = bitmap.getWidth();
@@ -136,6 +126,9 @@ public class YourService extends KiboRpcService {
             Log.d("readQR", e.getLocalizedMessage());
         }
     }
+
+
+
 
 /*
     // AR marker method
@@ -163,4 +156,5 @@ public class YourService extends KiboRpcService {
         return cameraMatrix;
     }
 */
+
 }
