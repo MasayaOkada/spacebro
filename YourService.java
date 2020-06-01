@@ -125,7 +125,7 @@ public class YourService extends KiboRpcService {
             LuminanceSource source = new RGBLuminanceSource(width, height, pixels);
             BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
             // zxing で画像データを読み込み解析する
-            Reader reader = new MultiFormatReader();
+            QRCodeReader reader = new QRCodeReader();
             com.google.zxing.Result decodeResult = reader.decode(binaryBitmap);
             // 解析結果を取得する
             String result = decodeResult.getText();
