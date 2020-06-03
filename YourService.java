@@ -1,12 +1,12 @@
 
 package jp.jaxa.iss.kibo.rpc.spacebroapk;
 
-//import org.opencv.aruco.Aruco;
-//import org.opencv.aruco.DetectorParameters;
-//import org.opencv.aruco.Dictionary;
+import gov.nasa.arc.astrobee.Result;
+import gov.nasa.arc.astrobee.types.Point;
+import gov.nasa.arc.astrobee.types.Quaternion;
+import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.LuminanceSource;
@@ -14,16 +14,7 @@ import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
-import gov.nasa.arc.astrobee.Result;
-import gov.nasa.arc.astrobee.types.Point;
-import gov.nasa.arc.astrobee.types.Quaternion;
-import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
-
-import static java.lang.Math.PI;
-import static java.lang.Math.cos;
-
-//import java.util.ArrayList;
-//import java.util.List;
+import android.util.Log;
 
 
 /**
@@ -33,49 +24,57 @@ import static java.lang.Math.cos;
 
 public class YourService extends KiboRpcService {
 
-    double Value;
+    //double Value;
 
     @Override
     protected void runPlan1(){
 
         api.judgeSendStart();
 
+        //moveToWrapper(11.5, -4.3, 4.5, 0, 0, -0.7071068, 0.7071068); //avoidKOZ1forP1-1
+
+        //moveToWrapper(11, -4.3, 5.4, 0, 0, -0.7071068, 0.7071068); //avoidKOZ1forP1-2
+
         moveToWrapper(11.45, -5.7, 4.5, 0, 0, 0, 1); //p1-1
+
         readQrcode(0);
-        double valueX = Value;
+        //double valueX = Value;
 
         moveToWrapper(11, -6, 5.55, 0, -0.7071068, 0, 0.7071068); //p1-2
         readQrcode(1);
-        double valueY = Value;
+        //double valueY = Value;
 
-        moveToWrapper(11, -5.5, 4.33, 0, -0.7071068, 0, 0.7071068);//p1-3
+        moveToWrapper(11, -5.5, 4.33, 0, 0.7071068, 0, 0.7071068);//p1-3
         readQrcode(2);
-        double valueZ = Value;
+        //double valueZ = Value;
 
-        moveToWrapper(10.55, -5.5, 4.9, 0, 0, 1, 0);
-        moveToWrapper(10.55, -6.8, 4.9, 0, 0, 1, 0);
-        moveToWrapper(11.2, -6.8, 4.9, 0, 0, 1, 0);
-        moveToWrapper(11.2, -7.5, 4.9, 0, 0, 1, 0);
+        moveToWrapper(10.45, -5.5, 4.9, 0, 0, -0.7071068, 0.7071068);//p1ゾーンの終わりから
+        moveToWrapper(10.55, -6.8, 4.9, 0, 0, 0, 1);
+        moveToWrapper(11.5, -7.0, 4.9, 0, 0, -0.7071068, 0.7071068);
+        //moveToWrapper(11.2, -6.8, 4.9, 0, 0, -0.7071068, 0.7071068);
+        //moveToWrapper(11.2, -7.5, 4.9, 0, 0, 1, 0);//p2ゾーンの入り口まで
 
-        moveToWrapper(10.45, -7.5, 4.7, 0, 0, 1, 0);//p2-1
+        moveToWrapper(10.35, -7.5, 4.7, 0, 0, 1, 0);//p2-1
         readQrcode(3);
-        double valueqX = Value;
-
-        moveToWrapper(11, -7.7, 5.55, 0, -0.7071068, 0, 0.7071068);//p2-3
-        readQrcode(4);
-        double valueqZ = Value;
+        //double valueqX = Value;
 
         moveToWrapper(11.45, -8, 5, 0, 0, 0, 1);//p2-2
+        readQrcode(4);
+        //double valueqY = Value;
+
+        moveToWrapper(11, -7.7, 5.55, 0, -0.7071068, 0, 0.7071068);//p2-3
         readQrcode(5);
-        double valueqY = Value;
+        //double valueqZ = Value;
 
-        moveToWrapper(11.45, -8, 4.65, 0, 0, 0, 1);
-        moveToWrapper(11.1, -8, 4.65, 0, 0, 0, 1);
-        moveToWrapper(11.1, -9, 4.65, 0, 0, 0, 1);
+        moveToWrapper(10.95, -8, 4.8, 0, 0, -0.7071068, 0.7071068);//p2ゾーン終わり
 
+        moveToWrapper(10.95, -9.3, 4.8, 0, 0, -0.7071068, 0.7071068);
+
+        /*
         moveToWrapper(valueX, valueY, valueZ, valueqX, valueqY, valueqZ,1); //p3
         double X = valueX + 0.20*cos(PI/4) - 0.0944;
         double Z = valueZ - 0.20*cos(PI/4) - 0.0385;
+        */
 
         api.laserControl(true);
 
@@ -116,8 +115,10 @@ public class YourService extends KiboRpcService {
     private void readQrcode(int count) {
         Bitmap bitmap = api.getBitmapNavCam();
         // Bitmap のサイズを取得して、ピクセルデータを取得する
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
+        //int width = bitmap.getWidth();
+        int width = 1280;
+        //int height = bitmap.getHeight();
+        int height = 960;
         int[] pixels = new int[width * height];
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
 
@@ -131,8 +132,8 @@ public class YourService extends KiboRpcService {
             // 解析結果を取得する
             String result = decodeResult.getText();
             Log.d("readQR", result);
+            //this.Value =  Double.parseDouble(result);
             api.judgeSendDiscoveredQR(count,result);
-            this.Value =  Double.parseDouble(result);
 
         } catch (Exception e) {
             Log.d("readQR", e.getLocalizedMessage());
@@ -143,27 +144,13 @@ public class YourService extends KiboRpcService {
     // AR marker method
     private void detectMarker(){
         Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
-
         Mat inputImage = api.getMatNavCam();
         List<Mat> corners = new ArrayList<>();
         Mat markerIds = new Mat();
         DetectorParameters parameters = DetectorParameters.create();
         Aruco.detectMarkers(inputImage, dictionary, corners, markerIds, parameters);
-
-       // double cameraMatrix[][] = new double[3][3];
-        double cameraMatrix[][] = {{344.173397, 0.000000, 630.793795},{0.000000, 344.277922, 487.033834},{0.000000,
-                0.000000, 1.000000}};
-        //double distortionCoefficients[][] = new double[1][5];
-        double distortionCoefficients[][] = {{-0.152963, 0.017530, -0.001107, -0.000210, 0.000000}};
-
-        Mat rotationMatrix = new Mat(), translationVectors = new Mat(); // 受け取る
-        estimatePoseSingleMarkers(corners, 0.05f, cameraMatrix, distortionCoefficients, rotationMatrix, translationVectors);
-
-    }
-
-    private double[][] estimatePoseSingleMarkers(List<Mat> corners, float v, double[][] cameraMatrix, double[][] distortionCoefficients, Mat rotationMatrix, Mat translationVectors) {
-        return cameraMatrix;
     }
 */
 
 }
+
