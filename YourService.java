@@ -1,12 +1,9 @@
 
 package jp.jaxa.iss.kibo.rpc.spacebroapk;
 
-import gov.nasa.arc.astrobee.Result;
-import gov.nasa.arc.astrobee.types.Point;
-import gov.nasa.arc.astrobee.types.Quaternion;
-import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.LuminanceSource;
@@ -14,7 +11,21 @@ import com.google.zxing.RGBLuminanceSource;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
-import android.util.Log;
+import gov.nasa.arc.astrobee.Result;
+import gov.nasa.arc.astrobee.types.Point;
+import gov.nasa.arc.astrobee.types.Quaternion;
+import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.cos;
+
+import org.opencv.aruco.Aruco;
+import org.opencv.aruco.DetectorParameters;
+import org.opencv.aruco.Dictionary;
+import org.opencv.core.Mat;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -31,12 +42,7 @@ public class YourService extends KiboRpcService {
 
         api.judgeSendStart();
 
-        //moveToWrapper(11.5, -4.3, 4.5, 0, 0, -0.7071068, 0.7071068); //avoidKOZ1forP1-1
-
-        //moveToWrapper(11, -4.3, 5.4, 0, 0, -0.7071068, 0.7071068); //avoidKOZ1forP1-2
-
         moveToWrapper(11.45, -5.7, 4.5, 0, 0, 0, 1); //p1-1
-
         readQrcode(0);
         //double valueX = Value;
 
@@ -96,7 +102,7 @@ public class YourService extends KiboRpcService {
                                double qua_x, double qua_y, double qua_z,
                                double qua_w){
 
-        final int LOOP_MAX = 3;
+        final int LOOP_MAX = 2;
         final Point point = new Point(pos_x, pos_y, pos_z);
         final Quaternion quaternion = new Quaternion((float)qua_x, (float)qua_y,
                 (float)qua_z, (float)qua_w);
@@ -111,13 +117,11 @@ public class YourService extends KiboRpcService {
         }
     }
 
-    // QR code reading method
+    // QR code reading method by NavCam
     private void readQrcode(int count) {
         Bitmap bitmap = api.getBitmapNavCam();
         // Bitmap のサイズを取得して、ピクセルデータを取得する
-        //int width = bitmap.getWidth();
         int width = 1280;
-        //int height = bitmap.getHeight();
         int height = 960;
         int[] pixels = new int[width * height];
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
@@ -132,25 +136,25 @@ public class YourService extends KiboRpcService {
             // 解析結果を取得する
             String result = decodeResult.getText();
             Log.d("readQR", result);
-            //this.Value =  Double.parseDouble(result);
             api.judgeSendDiscoveredQR(count,result);
+            //this.Value =  Double.parseDouble(result);
 
         } catch (Exception e) {
             Log.d("readQR", e.getLocalizedMessage());
         }
     }
 
-/*
+
     // AR marker method
-    private void detectMarker(){
+    private void detectMarker() {
         Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
+
         Mat inputImage = api.getMatNavCam();
         List<Mat> corners = new ArrayList<>();
         Mat markerIds = new Mat();
         DetectorParameters parameters = DetectorParameters.create();
         Aruco.detectMarkers(inputImage, dictionary, corners, markerIds, parameters);
+        String value = markerIds.toString();
+        api.judgeSendDiscoveredAR(value);
     }
-*/
-
 }
-
