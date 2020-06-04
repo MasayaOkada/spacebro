@@ -69,6 +69,7 @@ public class YourService extends KiboRpcService {
 
         moveToWrapper(valueX, valueY, valueZ, 0, 0, -0.7071068,0.7071068); //p3
 
+        detectARMarker();
         api.laserControl(true);
 
         api.judgeSendFinishSimulation();
@@ -129,7 +130,7 @@ public class YourService extends KiboRpcService {
 
 
     // AR marker method
-    private void detectMarker() {
+    private void detectARMarker() {
         Dictionary dictionary = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
 
         Mat inputImage = api.getMatNavCam();
