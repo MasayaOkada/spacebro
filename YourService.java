@@ -29,9 +29,7 @@ import gov.nasa.arc.astrobee.types.Quaternion;
  */
 
 public class YourService extends KiboRpcService {
-
     double Value;
-
     @Override
     protected void runPlan1(){
         api.judgeSendStart();
@@ -40,7 +38,7 @@ public class YourService extends KiboRpcService {
 
         moveToWrapper(11.45, -5.7, 4.5, 0, 0, 0, 1); //p1-1
         readQRcode(0);
-        double valueX =  Value;
+        double valueX = Value;
 
         moveToWrapper(11, -6, 5.55, 0, -0.7071068,0, 0.7071068); //p1-2
         readQRcode(1);
